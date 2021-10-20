@@ -1,34 +1,127 @@
+<!-- Thanks to https://zhconvert.org's Chinese (China) converter ! -->
+
 <img src="https://user-images.githubusercontent.com/26399680/47980314-0e3f1700-e102-11e8-8857-e3436ecc8beb.png" alt="logo" width="140" height="140" align="right">
 
 # UnblockNeteaseMusic
 
 解锁网易云音乐客户端变灰歌曲
 
-fork 自 [nondanee 的原版](https://github.com/nondanee/UnblockNeteaseMusic)，仅作部分优化。十分感谢 nondanee 提供如此棒的工具！
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FUnblockNeteaseMusic%2Fserver.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FUnblockNeteaseMusic%2Fserver?ref=badge_shield)
 
 ## 特性
 
-- 使用 Bilibili / QQ / 百度 / 酷狗 / 酷我 / 咪咕 / JOOX 音源替换变灰歌曲链接 (默认仅启用一、二、五、六)
-- 为请求增加 `X-Real-IP` 参数解锁海外限制，支持指定网易云服务器 IP，支持设置上游 HTTP / HTTPS 代理
-- 完整的流量代理功能 (HTTP / HTTPS)，可直接作为系统代理 (同时支持 PAC)
+-   使用 Bilibili / QQ / 酷狗 / 酷我 / 咪咕 / JOOX / Youtube 等音源替换变灰歌曲链接 (默认仅激活一、三、四、五)
+-   为请求增加 `X-Real-IP` 参数解锁海外限制，支持指定网易云服务器 IP，支持设置上游 HTTP / HTTPS 代理
+-   完整的流量代理功能 (HTTP / HTTPS)，可直接作为系统代理 (同时支持 PAC)
 
 ## 运行
 
-### docker 作法
+### 直接打开可运行文件
+
+去右侧的 Releases 找到最新版本，然后在下方的 Assets 找到符合你系统架构的可运行文件。下载回来后点两下即可使用。
+
+> macOS 因为签名问题，暂时不提供可运行文件。请先按照其他做法使用。
+
+### NPM 安装
+
+#### 安装成依赖
 
 ```bash
-git clone https://github.com/1715173329/UnblockNeteaseMusic
+npm install @unblockneteasemusic/server
+yarn add @unblockneteasemusic/server # for Yarn users
+```
+
+#### 用 NPX 运行
+
+```bash
+npx -p @unblockneteasemusic/server unblockneteasemusic
+```
+
+### 注册成 Windows 服务
+
+#### 安装服务
+
+直接 `clone` 或下载本项目，在项目根目录运行 `node ./nw.js`。会有弹窗，直接确定即可。如果有安全管家等软件可能会阻止，直接允许即可。运行成功后可在电脑服务中看到该服务。
+
+#### 配置
+
+http 代理使用 `127.0.0.1`，端口默认使用 `8080`。
+
+如果想要添加启动参数，请在项目根目录中的 `nw.js` 中配置 `scriptOptions`。
+
+> 如果想要卸载已安装的服务，请再次运行 `node ./nw.js`。
+>
+> 安装服务后，会在项目根目录生成 `daemon` 文件夹。可在这里查看日志。
+
+### Docker 作法
+
+#### Docker Hub
+
+见 [pan93412/unblock-netease-music-enhanced](https://hub.docker.com/repository/docker/pan93412/unblock-netease-music-enhanced)
+。`latest` 是从 `enhanced` 组建的最新版本；`release` 是最新 tag 的版本。
+
+直接运行 `pan93412/unblock-netease-music-enhanced` 的命令如下：
+
+```bash
+docker run pan93412/unblock-netease-music-enhanced
+```
+
+若要更新 UnblockNeteaseMusic，请运行以下命令后重新 `run`：
+
+```
+docker pull pan93412/unblock-netease-music-enhanced
+```
+
+若要指定环境变量，您可以往 `docker run` 传入 `-e`，就像这样：
+
+```bash
+docker run -e JSON_LOG=true -e LOG_LEVEL=debug pan93412/unblock-netease-music-enhanced
+```
+
+#### 自行编译
+
+```bash
+git clone https://github.com/UnblockNeteaseMusic/server.git UnblockNeteaseMusic
 cd UnblockNeteaseMusic
 docker-compose up
 ```
 
-### 传统作法
+### 直接使用 Repo 最新版本
 
 ```bash
-git clone https://github.com/1715173329/UnblockNeteaseMusic
+git clone https://github.com/UnblockNeteaseMusic/server.git UnblockNeteaseMusic
 cd UnblockNeteaseMusic
 node app.js # 建议使用 screen / tmux 把 app.js 挂后台
 ```
+
+更新：
+
+```
+git pull
+```
+
+#### 编译最新的 package
+
+```bash
+yarn
+yarn build
+node app.js # 即可使用 repo 的最新开发内容
+```
+
+#### 采用（而不编译）最新的 package
+
+```bash
+yarn
+DEVELOPMENT=true node app.js
+```
+
+### Android Xposed 模块
+
+请移步至 [杜比大喇叭 β 版](https://github.com/nining377/dolby_beta)。
+
+### OpenWrt LuCI 插件
+
+请移步至 [luci-app-unblockneteasemusic](https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic)。
 
 ### 配置参数
 
@@ -54,26 +147,45 @@ optional arguments:
 
 ### 环境变量
 
-| 变量名称    	| 类型 	| 描述                            	| 示例                      	|
-|-------------	|------	|---------------------------------	|---------------------------	|
-| ENABLE_FLAC 	| bool 	| 启用/禁用无损音质获取           	| `ENABLE_FLAC=true`        	|
-| MIGU_COOKIE 	| str  	| 咪咕音源的 aversionid cookie    	|                           	|
-| QQ_COOKIE   	| str  	| QQ 音源的 uin & qm_keyst cookie 	|                           	|
-| YOUTUBE_KEY 	| str  	| Youtube 音源的 Data API v3 Key  	|                           	|
-| SIGN_CERT   	| path 	| 自定义证书文件                  	| `SIGN_CERT="./ca.crt"`    	|
-| SIGN_KEY    	| path 	| 自定义密钥文件                  	| `SIGN_KEY="./server.key"` 	|
+| 变量名称         | 类型 | 描述                                                                                              | 示例                                                             |
+| ---------------- | ---- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ENABLE_FLAC      | bool | 激活无损音质获取                                                                                  | `ENABLE_FLAC=true`                                               |
+| ENABLE_LOCAL_VIP | bool | 激活本地黑胶 VIP                                                                                  | `ENABLE_LOCAL_VIP=true`                                          |
+| ENABLE_HTTPDNS   | bool | 激活故障的 Netease HTTPDNS 查询（不建议）                                                         | `ENABLE_HTTPDNS=true`                                            |
+| DEVELOPMENT      | bool | 激活开发模式。需要自己用 `yarn` 安装依赖 (dependencies)                                           | `DEVELOPMENT=true`                                               |
+| JSON_LOG         | bool | 输出机器可读的 JSON 记录格式                                                                      | `JSON_LOG=true`                                                  |
+| NO_CACHE         | bool | 停用 cache                                                                                        | `NO_CACHE=true`                                                  |
+| MIN_BR           | int  | 允许的最低源音质，小于该值将被替换                                                                | `MIN_BR=320000`                                                  |
+| LOG_LEVEL        | str  | 日志输出等级。请见〈日志等级〉部分。                                                              | `LOG_LEVEL=debug`                                                |
+| LOG_FILE         | str  | 从 Pino 端设置日志输出的文件位置。也可以用 `*sh` 的输出重导向功能 (`node app.js >> app.log`) 代替 | `LOG_FILE=app.log`                                               |
+| JOOX_COOKIE      | str  | JOOX 音源的 wmid 和 session_key cookie                                                            | `JOOX_COOKIE="wmid=<your_wmid>; session_key=<your_session_key>"` |
+| MIGU_COOKIE      | str  | 咪咕音源的 aversionid cookie                                                                      | `MIGU_COOKIE="<your_aversionid>"`                                |
+| QQ_COOKIE        | str  | QQ 音源的 uin 和 qm_keyst cookie                                                                  | `QQ_COOKIE="uin=<your_uin>; qm_keyst=<your_qm_keyst>"`           |
+| YOUTUBE_KEY      | str  | Youtube 音源的 Data API v3 Key                                                                    | `YOUTUBE_KEY="<your_data_api_key>"`                              |
+| SIGN_CERT        | path | 自定义证书文件                                                                                    | `SIGN_CERT="./server.crt"`                                       |
+| SIGN_KEY         | path | 自定义密钥文件                                                                                    | `SIGN_KEY="./server.key"`                                        |
+
+#### 日志等级 (`LOG_LEVEL`)
+
+这些是常用的值：
+
+-   `debug`: 输出所有记录（调试用）
+-   `info`: 只输出一般资讯（默认值）
+-   `error`: 只在出严重问题时输出
+
+详细请参见 [Pino 对此的说明](https://github.com/pinojs/pino/blob/master/docs/api.md#level-string)。
 
 ## 使用
 
-**警告**：本项目不提供线上 demo，请不要轻易信任使用他人提供的公开代理服务，以免发生安全问题
+**警告**：本项目不提供在线 demo，请不要轻易信任使用他人提供的公开代理服务，以免发生安全问题
 
-**若将服务部署到公网，强烈建议使用严格模式 (此模式下仅放行网易云音乐所属域名的请求) `-s`  限制代理范围 (需使用 PAC 或 hosts)，~~或启用 Proxy Authentication `-t <name>:<password>` 设置代理用户名密码~~ (目前密码认证在 Windows 客户端设置和 macOS 系统设置都无法生效，请不要使用)，以防代理被他人滥用**
+**若将服务部署到公网，强烈建议使用严格模式 (此模式下仅放行网易云音乐所属域名的请求) `-s` 限制代理范围 (需使用 PAC 或 hosts)，~~或激活 Proxy Authentication `-t <name>:<password>` 设置代理用户名密码~~ (目前密码认证在 Windows 客户端设置和 macOS 系统设置都无法生效，请不要使用)，以防代理被他人滥用**
 
 支持 Windows 客户端，UWP 客户端，Android 客户端，Linux 客户端 (1.2 版本以上需要自签证书 MITM，启动客户端需要增加 `--ignore-certificate-errors` 参数)，macOS 客户端 (726 版本以上需要自签证书)，iOS 客户端 (配置 https endpoint 或使用自签证书) 和网页版 (需要自签证书，需要脚本配合)
 
 目前除 UWP 外其它客户端均优先请求 HTTPS 接口，默认配置下本代理对网易云所有 HTTPS API 连接返回空数据，促使客户端降级使用 HTTP 接口 (新版 Linux 客户端和 macOS 客户端已无法降级)
 
-因 UWP 应用存在网络隔离，限制流量发送到本机，若使用的代理在 localhost，或修改的 hosts 指向 localhost，需为 "网易云音乐 UWP" 手动开启 loopback 才能使用，请以**管理员身份**执行命令
+因 UWP 应用存在网络隔离，限制流量发送到本机，若使用的代理在 localhost，或修改的 hosts 指向 localhost，需为 "网易云音乐 UWP" 手工开启 loopback 才能使用，请以**管理员身份**运行命令
 
 ```powershell
 checknetisolation loopbackexempt -a -n="1F8B0F94.122165AE053F_j2p0p5q0044a6"
@@ -100,29 +212,29 @@ PAC 自动代理脚本地址 `http://<Server Name:PORT>/proxy.pac`
 
 全局代理地址填写服务器地址和端口号即可
 
-| 平台    | 基础设置 |
-| :------ | :------------------------------- |
-| Windows | 设置 > 工具 > 自定义代理 (客户端内) |
+| 平台    | 基础设置                              |
+| :------ | :------------------------------------ |
+| Windows | 设置 > 工具 > 自定义代理 (客户端内)   |
 | UWP     | Windows 设置 > 网络和 Internet > 代理 |
-| Linux   | 系统设置 > 网络 > 网络代理 |
-| macOS   | 系统偏好设置 > 网络 > 高级 > 代理 |
-| Android | WLAN > 修改网络 > 高级选项 > 代理 |
-| iOS     | 无线局域网 > HTTP 代理 > 配置代理 |
+| Linux   | 系统设置 > 网络 > 网络代理            |
+| macOS   | 系统偏好设置 > 网络 > 高级 > 代理     |
+| Android | WLAN > 修改网络 > 高级选项 > 代理     |
+| iOS     | 无线局域网 > HTTP 代理 > 配置代理     |
 
 > 代理工具和方法有很多请自行探索，欢迎在 issues 讨论
 
-### ✳方法 3. 调用接口
+### ✳ 方法 3. 调用接口
 
 作为依赖库使用
 
 ```javascript
-const match = require('@1715173329/unblockneteasemusic')
+const match = require('@unblockneteasemusic/server');
 
-/** 
+/**
  * Set proxy or hosts if needed
  */
-global.proxy = require('url').parse('http://127.0.0.1:1080')
-global.hosts = {'i.y.qq.com': '59.37.96.220'}
+global.proxy = require('url').parse('http://127.0.0.1:1080');
+global.hosts = { 'i.y.qq.com': '59.37.96.220' };
 
 /**
  * Find matching song from other platforms
@@ -130,7 +242,7 @@ global.hosts = {'i.y.qq.com': '59.37.96.220'}
  * @param {Array<String>||undefined} source support qq, xiami, baidu, kugou, kuwo, migu, joox
  * @return {Promise<Object>}
  */
-match(418602084, ['qq', 'kuwo', 'migu']).then(console.log)
+match(418602084, ['qq', 'kuwo', 'migu']).then(console.log);
 ```
 
 ## 效果
@@ -197,4 +309,8 @@ match(418602084, ['qq', 'kuwo', 'migu']).then(console.log)
 
 ## 许可
 
-The MIT License
+(Original project) [nondanee/UnblockNeteaseMusic](https://github.com/nondanee/UnblockNeteaseMusic): [MIT](https://github.com/nondanee/UnblockNeteaseMusic/blob/master/LICENSE)
+
+(This project) [UnblockNeteaseMusic/server](https://github.com/UnblockNeteaseMusic/server): [LGPL-3.0-only](https://spdx.org/licenses/LGPL-3.0-only.html)
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FUnblockNeteaseMusic%2Fserver.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FUnblockNeteaseMusic%2Fserver?ref=badge_large)
