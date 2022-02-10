@@ -35,7 +35,7 @@
 	"license": "LGPL-3.0-only",
 	"dependencies": {
 		"node-windows": "^1.0.0-beta.6",
-		"pino": "6",
+		"pino": "7",
 		"pino-pretty": "^7.1.0"
 	},
 	"devDependencies": {
